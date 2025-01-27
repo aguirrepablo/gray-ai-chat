@@ -38,14 +38,12 @@ export class BuilderbotService implements OnModuleInit {
         this.messageBuffer[number].buffer = []; // Limpiamos el buffer después de procesarlo
         delete this.messageBuffer[number].timer; // Eliminamos el temporizador
 
-        const conversation = await this.conversationHelper.findOrCreateConversation(number, ChannelType.TELEGRAM);
+        const conversation = await this.conversationHelper.findOrCreateConversation(number, ChannelType.BUILDERBOT);
         const messageHistory = await this.conversationHelper.getArrayMessage(conversation);
 
         fullMessage;
 
         messageHistory.push(await this.conversationHelper.generateNewMessage(conversation, MessageType.TEXT, fullMessage, SenderType.CUSTOMER));
-
-        this.bot.sendChatAction(number, "typing");
 
         await this.geminiHelper.processMessages(messageHistory, conversation, this.sendMessage);
 ;
@@ -58,11 +56,11 @@ export class BuilderbotService implements OnModuleInit {
       }
       console.log("Esto es lo que llega : ", ctx);
 
-      await this.bot.sendMessage(number, body, {})
+      // await this.bot.sendMessage(number, body, {})
     })
 
-  sendMessage = async (identifierChannel: string, message: string) => {
-    this.bot.sendMessage(identifierChannel, message);
+  sendMessage = async (number: string, body: string) => {
+    await this.bot.sendMessage(number, body, {})
   }
 
   async onModuleInit() {

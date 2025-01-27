@@ -8,6 +8,7 @@ import { GeminiService } from './gemini.service';
 import { MessageArray } from 'src/conversation/utils/message-array';
 import { MessageType } from 'src/conversation/enums/message-type.enum';
 import { ConversationHelper } from 'src/conversation/conversation.helper';
+import { ChannelType } from 'src/conversation/enums/channel-type.enum';
 
 @Injectable()
 export class GeminiHelper implements AIHelper<Content> {
@@ -89,7 +90,7 @@ export class GeminiHelper implements AIHelper<Content> {
 
                     const content: Content = {
                         role: role,
-                        parts: await this.formatContent(message.content, message.type, message.senderType)
+                        parts: await this.formatContent(message.content, message.type, message.senderType, conversation.channel)
                     };
 
                     console.log("Sender : ", message.senderType, " > content : ", content, message.createdAt);
@@ -106,12 +107,18 @@ export class GeminiHelper implements AIHelper<Content> {
         }
     }
 
-    async formatContent(contentMessage: any[], messageType : MessageType , senderType: SenderType): Promise<any[]> {
+    async formatContent(contentMessage: any[], messageType : MessageType , senderType: SenderType, channel : ChannelType): Promise<any[]> {
         const parts: Part[] = [];
         for (const content of contentMessage) {
             switch (senderType) {
                 case SenderType.CUSTOMER:
-                    parts.push({ text: content.text } as TextPart);
+                    if(channel == ChannelType.TELEGRAM){
+                        parts.push({ text: content.text } as TextPart);
+                    }
+                    if(channel == ChannelType.BUILDERBOT){
+                        parts.push({ text: content.body } as TextPart);
+                    }
+                    
                     break;
                 case SenderType.AGENT:
                     switch (messageType) {

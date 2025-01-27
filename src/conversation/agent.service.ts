@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { Agent } from './schemas/Agent.schema'; // Adjust import path as needed
+import { Agent } from './schemas/agent.schema';
+
 
 @Injectable()
 export class AgentService {
