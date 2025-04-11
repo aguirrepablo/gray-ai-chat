@@ -22,8 +22,6 @@ export class GeminiHelper implements AIHelper<Content> {
 
     async processMessages(messages: MessageArray, conversation: Conversation, sendChatMessageCallback): Promise<any> {
         try {
-            console.log("messages > ", messages);
-
             const historyMessageFormat = await this.formatMessages(messages, conversation);
 
             const prompt =
@@ -87,7 +85,7 @@ export class GeminiHelper implements AIHelper<Content> {
                         parts: await this.formatContent(message.content, message.type, message.senderType, conversation.channel)
                     };
 
-                    //console.log("Sender : ", message.senderType, " > content : ", content, message.createdAt);
+                    console.log("Sender : ", message.senderType, " > content : ", content, message.createdAt);
 
                     result.push(content);
                 }
