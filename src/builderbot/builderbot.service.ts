@@ -21,24 +21,26 @@ export class BuilderbotService implements OnModuleInit {
 
   private onReceiveMessage = addKeyword<BaileysProvider, Database>("")
     .addAction(async (ctx: any) => {
-      const { number, body } = ctx
+      
+      console.log(ctx);
+      const { from, body } = ctx
 
-      if (!this.messageBuffer[number]) {
-        this.messageBuffer[number] = { buffer: [], timer: undefined };
+      if (!this.messageBuffer[from]) {
+        this.messageBuffer[from] = { buffer: [], timer: undefined };
       }
 
-      this.messageBuffer[number].buffer.push(body);
+      this.messageBuffer[from].buffer.push(body);
 
-      if (this.messageBuffer[number].timer) {
-        clearTimeout(this.messageBuffer[number].timer);
+      if (this.messageBuffer[from].timer) {
+        clearTimeout(this.messageBuffer[from].timer);
       }
 
-      this.messageBuffer[number].timer = setTimeout(async () => {
-        const fullMessage = this.messageBuffer[number].buffer.join(' ');
-        this.messageBuffer[number].buffer = []; // Limpiamos el buffer después de procesarlo
-        delete this.messageBuffer[number].timer; // Eliminamos el temporizador
+      this.messageBuffer[from].timer = setTimeout(async () => {
+        const fullMessage = this.messageBuffer[from].buffer.join(' ');
+        this.messageBuffer[from].buffer = []; // Limpiamos el buffer después de procesarlo
+        delete this.messageBuffer[from].timer; // Eliminamos el temporizador
 
-        const conversation = await this.conversationHelper.findOrCreateConversation(number, ChannelType.BUILDERBOT);
+        const conversation = await this.conversationHelper.findOrCreateConversation(from, ChannelType.BUILDERBOT);
         const messageHistory = await this.conversationHelper.getArrayMessage(conversation);
 
         ctx.body = fullMessage;
@@ -59,8 +61,8 @@ export class BuilderbotService implements OnModuleInit {
       // await this.bot.sendMessage(number, body, {})
     })
 
-  sendMessage = async (number: string, body: string) => {
-    await this.bot.provider.sendMessage(number, body, {})
+  sendMessage = async (from: string, body: string) => {
+    await this.bot.provider.sendMessage(from, body, {})
   }
 
   async onModuleInit() {
