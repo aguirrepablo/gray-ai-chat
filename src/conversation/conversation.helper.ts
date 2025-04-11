@@ -54,8 +54,10 @@ export class ConversationHelper {
 
   async getArrayMessage(conversation: Conversation): Promise<MessageArray> {
     const messageHistory = new MessageArray(this.messageService)
-    if(conversation.messages) messageHistory.concat(conversation.messages);
     console.log("messageHistory > ", messageHistory);
+    
+    if(conversation.messages) messageHistory.concat(conversation.messages);
+    
     return messageHistory;
   }
 

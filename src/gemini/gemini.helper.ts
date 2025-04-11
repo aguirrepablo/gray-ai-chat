@@ -69,8 +69,10 @@ export class GeminiHelper implements AIHelper<Content> {
 
             if (messages) {
                 for (const message of messages) {
+                   
+                    if(message == undefined) continue;
+                    
                     var role = "";
-
                     switch (message.senderType) {
                         case SenderType.CUSTOMER:
                             role = Role.user.toString();
