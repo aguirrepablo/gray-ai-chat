@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as TelegramBot from 'node-telegram-bot-api';
 import { ConversationHelper } from 'src/conversation/conversation.helper';
 import { ChannelType } from 'src/conversation/enums/channel-type.enum';
+import { ConversationStatus } from 'src/conversation/enums/conversation-status.enum';
 import { MessageType } from 'src/conversation/enums/message-type.enum';
 import { SenderType } from 'src/conversation/enums/sender-type.enum';
 import { GeminiHelper } from 'src/gemini/gemini.helper';
@@ -43,9 +44,12 @@ export class TelegramService {
             const conversation = await this.conversationHelper.findOrCreateConversation(identifierChannel, ChannelType.TELEGRAM);
             const messageHistory = await this.conversationHelper.getArrayMessage(conversation);
 
+            console.log("messageHistory >>> ", messageHistory);
             message.text = fullMessage;
 
             messageHistory.push(await this.conversationHelper.generateNewMessage(conversation, MessageType.TEXT, message, SenderType.CUSTOMER));
+
+            if(conversation.status == ConversationStatus.AGENT_DESACTIVATED) return;
 
             this.bot.sendChatAction(identifierChannel, "typing");
 

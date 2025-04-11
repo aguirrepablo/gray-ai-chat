@@ -2,5 +2,6 @@ export enum ChannelType {
   WHATSAPP = 'whatsapp',
   BUILDERBOT = 'builderbot',
   TELEGRAM = 'telegram',
-  WEB = 'web'
+  WEB = 'web',
+  WEBCHAT = 'webchat'
 }

@@ -9,9 +9,10 @@ import { BuilderbotModule } from './builderbot/builderbot.module';
 import { ConversationModule } from './conversation/conversation.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { SharedModule } from './shared/shared.module';
+import { WebchatModule } from './webchat/webchat.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true}), MongooseModule.forRoot(`${process.env.MONGO_URL}/${process.env.MONGO_DB}`), BuilderbotModule, OpenaiModule, TelegramModule, GeminiModule, ConversationModule, SharedModule],
+  imports: [ConfigModule.forRoot({ isGlobal: true}), MongooseModule.forRoot(`${process.env.MONGO_URL}/${process.env.MONGO_DB}`), BuilderbotModule, OpenaiModule, TelegramModule, GeminiModule, ConversationModule, SharedModule, WebchatModule],
   controllers: [AppController],
   providers: [AppService],
 })

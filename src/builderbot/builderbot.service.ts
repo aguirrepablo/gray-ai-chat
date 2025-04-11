@@ -1,13 +1,13 @@
-import { Injectable, OnModuleInit, Inject } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { createBot, createProvider, createFlow, addKeyword } from '@builderbot/bot';
 import { MongoAdapter as Database } from '@builderbot/database-mongo';
 import { BaileysProvider } from '@builderbot/provider-baileys'
-import { INestApplication } from '@nestjs/common';
 import { GeminiHelper } from 'src/gemini/gemini.helper';
 import { ConversationHelper } from 'src/conversation/conversation.helper';
 import { MessageType } from 'src/conversation/enums/message-type.enum';
 import { SenderType } from 'src/conversation/enums/sender-type.enum';
 import { ChannelType } from 'src/conversation/enums/channel-type.enum';
+import { ConversationStatus } from 'src/conversation/enums/conversation-status.enum';
 
 @Injectable()
 export class BuilderbotService implements OnModuleInit {
@@ -41,10 +41,12 @@ export class BuilderbotService implements OnModuleInit {
         const conversation = await this.conversationHelper.findOrCreateConversation(number, ChannelType.BUILDERBOT);
         const messageHistory = await this.conversationHelper.getArrayMessage(conversation);
 
-        fullMessage;
+        ctx.body = fullMessage;
 
-        messageHistory.push(await this.conversationHelper.generateNewMessage(conversation, MessageType.TEXT, fullMessage, SenderType.CUSTOMER));
+        messageHistory.push(await this.conversationHelper.generateNewMessage(conversation, MessageType.TEXT, ctx, SenderType.CUSTOMER));
 
+        if(conversation.status == ConversationStatus.AGENT_DESACTIVATED) return;
+        
         await this.geminiHelper.processMessages(messageHistory, conversation, this.sendMessage);
 ;
       }, this.timeoutDuration);
@@ -54,13 +56,11 @@ export class BuilderbotService implements OnModuleInit {
       } catch (error) {
 
       }
-      console.log("Esto es lo que llega : ", ctx);
-
       // await this.bot.sendMessage(number, body, {})
     })
 
   sendMessage = async (number: string, body: string) => {
-    await this.bot.sendMessage(number, body, {})
+    await this.bot.provider.sendMessage(number, body, {})
   }
 
   async onModuleInit() {
@@ -79,8 +79,6 @@ export class BuilderbotService implements OnModuleInit {
         provider: adapterProvider,
         database: adapterDB,
       })
-
-      this.bot.httpServer(process.env.BUILDERBOT_PORT);
 
     } catch (error) {
       console.error("No se pudo levantar builderbot.", error);

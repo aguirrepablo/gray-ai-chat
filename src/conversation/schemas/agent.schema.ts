@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { AgentStatus } from '../enums/agent-status.enum';
-import { Conversation } from './conversation.schema';
 
 export type AgentDocument = HydratedDocument<Agent>;
 

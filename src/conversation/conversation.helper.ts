@@ -54,7 +54,7 @@ export class ConversationHelper {
 
   async getArrayMessage(conversation: Conversation): Promise<MessageArray> {
     const messageHistory = new MessageArray(this.messageService)
-    messageHistory.concat(conversation.messages);
+    if(conversation.messages) messageHistory.concat(conversation.messages);
     return messageHistory;
   }
 
@@ -80,5 +80,13 @@ export class ConversationHelper {
 
     const respone = await this.messageService.create(message);;
     return respone; 
+  }
+
+  async deactivateAgentConversation(conversation_id : string){
+    await this.conversationService.updateConversationStatus(conversation_id, ConversationStatus.AGENT_DESACTIVATED);
+  }
+
+  async closeConversation(conversation_id : string){
+    await this.conversationService.closeConversation(conversation_id);
   }
 }

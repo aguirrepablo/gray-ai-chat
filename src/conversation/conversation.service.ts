@@ -56,17 +56,31 @@ export class ConversationService {
     }));
   }
 
-  async closeConversation(conversationId: Types.ObjectId): Promise<Conversation> {
+  async closeConversation(conversationId: Types.ObjectId | string): Promise<Conversation> {
     const conversation = await this.conversationModel.findById(conversationId);
     
     if (!conversation) {
       throw new NotFoundException('Conversation not found');
     }
 
-    // Close the conversation
     conversation.status = ConversationStatus.CLOSED;
     conversation.closedAt = new Date();
 
     return conversation.save();
+  }
+
+  async updateConversationStatus( conversationId: Types.ObjectId | string, newStatus: ConversationStatus): Promise<Conversation> {
+    try {
+      const updatedConversation = await this.conversationModel.findByIdAndUpdate(
+        conversationId,
+        { status: newStatus },
+        { new: true },
+      ).exec();
+
+      return updatedConversation;
+    } catch (error) {
+      console.error('Error updating conversation status:', error);
+      return null;
+    }
   }
 }
