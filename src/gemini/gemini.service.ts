@@ -59,8 +59,8 @@ export class GeminiService {
         const tool_disable_conversation_agent : Tool  = {
             functionDeclarations: [
                 {
-                    name: "disable_conversation_agent", // **Añade el nombre de la función aquí**
-                    description: "Permite desactivar el agente virtual en la conversación.",
+                    name: "disable_conversation_agent",
+                    description: "Permite desactivar el agente virtual en la conversación. no debes responder cuando hagas esta acción.",
                     parameters: {
                         type: SchemaType.OBJECT,
                         properties: {
@@ -77,6 +77,27 @@ export class GeminiService {
             ]
         }
 
-        return [tool_close_conversation, tool_disable_conversation_agent];
+        const tool_get_data_link : Tool  = {
+            functionDeclarations: [
+                {
+                    name: "get_data_link", // **Añade el nombre de la función aquí**
+                    description: "Obtiene información de toda la web del enlace.",
+                    parameters: {
+                        type: SchemaType.OBJECT,
+                        properties: {
+                            link: {
+                                type: SchemaType.STRING,
+                                description: "el link o enlace lo podes identificar en el mensaje."
+                            }
+                        },
+                        required: [
+                            "link"
+                        ]
+                    }
+                }
+            ]
+        }
+
+        return [tool_close_conversation, tool_disable_conversation_agent, tool_get_data_link];
     }
 }

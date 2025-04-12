@@ -21,6 +21,7 @@ export class TelegramService {
     }
 
     onReceiveMessage = async (message: any) => {
+        console.log("message telegram > ", message);
         const identifierChannel = message.chat.id.toString();
 
         if (!this.userBuffers[identifierChannel]) {
@@ -44,7 +45,6 @@ export class TelegramService {
             const conversation = await this.conversationHelper.findOrCreateConversation(identifierChannel, ChannelType.TELEGRAM);
             const messageHistory = await this.conversationHelper.getArrayMessage(conversation);
 
-            console.log("messageHistory >>> ", messageHistory);
             message.text = fullMessage;
 
             messageHistory.push(await this.conversationHelper.generateNewMessage(conversation, MessageType.TEXT, message, SenderType.CUSTOMER));

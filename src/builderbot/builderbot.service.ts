@@ -12,10 +12,12 @@ import { ConversationStatus } from 'src/conversation/enums/conversation-status.e
 @Injectable()
 export class BuilderbotService implements OnModuleInit {
 
+  private _mongo_url = process.env.MONGO_URL;
+  private _mongo_db = process.env.MONGO_DB;
+
   constructor(private readonly conversationHelper: ConversationHelper, private readonly geminiHelper: GeminiHelper) { }
 
   private bot: any;
-
   private messageBuffer: Record<string, { buffer: string[]; timer?: NodeJS.Timeout }> = {};
   private timeoutDuration = 5000; // Tiempo de espera (8 segundos)
 
@@ -25,6 +27,7 @@ export class BuilderbotService implements OnModuleInit {
       console.log(ctx);
       const { from, body } = ctx
 
+      
       if (!this.messageBuffer[from]) {
         this.messageBuffer[from] = { buffer: [], timer: undefined };
       }
@@ -71,8 +74,8 @@ export class BuilderbotService implements OnModuleInit {
     const adapterFlow = createFlow([this.onReceiveMessage])
     const adapterProvider = createProvider(BaileysProvider)
     const adapterDB = new Database({
-      dbUri: "mongodb+srv://admin:0TOSFaYkV8QSFt6V@cluster0.z4ayn.mongodb.net/",
-      dbName: "gray-ai-db",
+      dbUri: this._mongo_url,
+      dbName: this._mongo_db,
     })
 
     try {

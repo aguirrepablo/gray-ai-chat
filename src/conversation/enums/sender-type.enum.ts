@@ -1,7 +1,7 @@
 export enum SenderType {
-    CUSTOMER = 'Customer',
-    AGENT = 'Agent',
-    FUNCTION = 'Function',
-    SYSTEM = 'system',
-    EXTERNAL_SERVICE = 'external service',
+    CUSTOMER = 'CUSTOMER',
+    AGENT = 'AGENT',
+    TOOL_RESULT = 'TOOL_RESULT',
+    SYSTEM = 'SYSTEM',
+    EXTERNAL_SERVICE = 'EXTERNAL SERVICE',
   }

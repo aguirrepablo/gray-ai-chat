@@ -9,6 +9,8 @@ import { MessageArray } from 'src/conversation/utils/message-array';
 import { MessageType } from 'src/conversation/enums/message-type.enum';
 import { ConversationHelper } from 'src/conversation/conversation.helper';
 import { ChannelType } from 'src/conversation/enums/channel-type.enum';
+import axios from 'axios';
+import * as cheerio from 'cheerio';
 
 @Injectable()
 export class GeminiHelper implements AIHelper<Content> {
@@ -43,7 +45,13 @@ export class GeminiHelper implements AIHelper<Content> {
                 if (calls.length !== 0) {
                     for (const call of calls) {
                         const toolResponse = await that.runTools(call.name, call.args);
-                        messages.push(await that.conversationHelper.generateNewMessage(conversation, MessageType.TEXT, toolResponse, SenderType.FUNCTION));
+                        const toolResponseContent = {
+                            name: call.name,
+                            args: call.args,
+                            response: toolResponse
+                        }
+
+                        messages.push(await that.conversationHelper.generateNewMessage(conversation, MessageType.TOOL_RESULT, toolResponseContent, SenderType.TOOL_RESULT));
 
                         //Se envia la respuesta a gemini
                         const responseToolResult = await that.geminiService.getGenerativeModel(await that.formatMessages(messages, conversation), prompt)
@@ -69,11 +77,13 @@ export class GeminiHelper implements AIHelper<Content> {
 
             if (messages) {
                 for (const message of messages) {
-                   
-                    if(message == undefined) continue;
-                    
+
+                    if (message == undefined) continue;
+
                     var role = "";
                     switch (message.senderType) {
+
+                        case SenderType.TOOL_RESULT:
                         case SenderType.CUSTOMER:
                             role = Role.user.toString();
                             break;
@@ -133,8 +143,11 @@ export class GeminiHelper implements AIHelper<Content> {
                         case MessageType.TEXT:
                             if (content) {
                                 if (content.candidates) {
-                                    parts.push({ text: content.candidates[0].content.parts[0].text } as TextPart);
-
+                                    content.candidates.forEach((candidato: any) => {
+                                        candidato.content.parts.map(function (part: any) {
+                                            parts.push(part);
+                                        });
+                                    });
                                 } else {
                                     parts.push({ text: "Respuesta sin datos." } as TextPart);
                                 }
@@ -142,24 +155,25 @@ export class GeminiHelper implements AIHelper<Content> {
                                 parts.push({ text: "Respuesta con error." } as TextPart);
                             }
                             break
-                        // case "tool_use":
-                        //     parts.push({
-                        //         functionCall: {
-                        //             name: content.name,
-                        //             args: content.input
-                        //         }
-                        //     } as FunctionCallPart);
-                        //     break
-                        // case "tool_result":
-                        //     parts.push({
-                        //         functionCall: {
-                        //             name: content.name,
-                        //             response: JSON.parse(content.content)
-                        //         }
-                        //     } as FunctionResponsePart);
-                        //     break
+                        case MessageType.TOOL_CALL:
+                            parts.push({
+                                functionCall: {
+                                    name: content.name,
+                                    args: content.input
+                                }
+                            });
+                            break
                     }
                     break;
+                case SenderType.TOOL_RESULT:
+                    console.log("content > > > ", content);
+                    parts.push({
+                        functionResponse: {
+                            name: content.name,
+                            response: content.response
+                        }
+                    });
+                    break
             }
 
         }
@@ -184,6 +198,22 @@ export class GeminiHelper implements AIHelper<Content> {
                     response = { message: "La conversación se marco como completa correctamente.", };
                 } catch (error) {
                     response = { message: "No se pudo marcar como completa la conversación.", error: error };
+                }
+                break;
+            case "get_data_link":
+                try {
+                    try {
+                        const gerResponse = await axios.get(args.link);
+                        const html = gerResponse.data;
+                        const $ = cheerio.load(html);
+                        const metaDescription = $('meta[name="description"]').attr('content');
+                        response = { data: metaDescription || null }; ;
+                      } catch (error) {
+                        console.error('Error al obtener o analizar la página:', error);
+                        response = { data: null}; ;
+                      }
+                } catch (error) {
+                    response = { message: "No se pudo consultar la web", error: JSON.stringify(error) };
                 }
                 break;
             default:

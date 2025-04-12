@@ -34,7 +34,7 @@ export class ConversationHelper {
       if (customer.currentConversation) {
         const currentConversation = await this.conversationService.findOneConversationWithMessages(customer.currentConversation._id)
 
-        if (currentConversation && currentConversation.status === ConversationStatus.OPEN) {
+        if (currentConversation && (currentConversation.status === ConversationStatus.OPEN || currentConversation.status === ConversationStatus.AGENT_DESACTIVATED)) {
           return currentConversation;
         }
       }
@@ -54,10 +54,7 @@ export class ConversationHelper {
 
   async getArrayMessage(conversation: Conversation): Promise<MessageArray> {
     const messageHistory = new MessageArray(this.messageService)
-    console.log("messageHistory > ", messageHistory);
-    
     if(conversation.messages) messageHistory.concat(conversation.messages);
-    
     return messageHistory;
   }
 
