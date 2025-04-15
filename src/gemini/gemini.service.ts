@@ -19,7 +19,13 @@ export class GeminiService {
             const model = genAI.getGenerativeModel({
                 model: this.geminiModel,
                 systemInstruction: promptCasteado,
-                tools: tools
+                tools: tools,
+                generationConfig: {
+                    temperature: 0.6, // Aumentamos la temperatura para más aleatoriedad
+                    topP: 0.85,
+                    topK: 64,
+                    maxOutputTokens: 8192
+                  }
             });
 
             const result = await model.generateContent({
