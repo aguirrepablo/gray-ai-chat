@@ -5,6 +5,10 @@ import { Content, GoogleGenerativeAI, SchemaType, Tool } from '@google/generativ
 export class GeminiService {
     private geminiApiToken = process.env.GEMINI_API_TOKEN;
     private geminiModel = process.env.GEMINI_MODEL;
+    private _geminiConfigTemperature = process.env.GEMINI_CONFIG_TEMPERATURE;
+    private _geminiConfigTopP = process.env.GEMINI_CONFIG_TEMP_P;
+    private _geminiConfigTopK = process.env.GEMINI_CONFIG_TEMP_K;
+    private _geminiConfigMaxOutputTokens = process.env.GEMINI_CONFIG_MAX_OUTPUT_TOKENS;
 
     async getGenerativeModel(messages: Content[], prompt: string): Promise<any> {
         try {
@@ -21,10 +25,10 @@ export class GeminiService {
                 systemInstruction: promptCasteado,
                 tools: tools,
                 generationConfig: {
-                    temperature: 0.6, // Aumentamos la temperatura para más aleatoriedad
-                    topP: 0.85,
-                    topK: 64,
-                    maxOutputTokens: 8192
+                    temperature: Number(this._geminiConfigTemperature), // Aumentamos la temperatura para más aleatoriedad
+                    topP: Number(this._geminiConfigTopP),
+                    topK: Number(this._geminiConfigTopK),
+                    maxOutputTokens: Number(this._geminiConfigMaxOutputTokens)
                   }
             });
 
