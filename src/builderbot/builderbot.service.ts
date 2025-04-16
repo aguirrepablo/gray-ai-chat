@@ -111,7 +111,7 @@ export class BuilderbotService implements OnModuleInit {
         database: adapterDB,
       })
 
-      // this.bot.httpServer(process.env.BUILDERBOT_PORT);
+      this.bot.httpServer(process.env.BUILDERBOT_PORT);
 
     } catch (error) {
       console.error("No se pudo levantar builderbot.", error);
